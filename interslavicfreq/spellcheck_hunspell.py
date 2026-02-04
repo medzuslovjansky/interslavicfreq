@@ -259,8 +259,6 @@ class HunspellDictionary:
         }
 
 
-def load_hunspell(dic_path: str | Path, aff_path: str | Path, *, quiet: bool = False) -> HunspellDictionary:
-    dic_path = Path(dic_path)
 def _get_cache_path(dic_path: Path) -> Path:
     """Получить путь к файлу кэша для словаря."""
     return dic_path.with_suffix(".cache.pickle")
@@ -316,53 +314,3 @@ def load_hunspell(dic_path: str | Path, aff_path: str | Path, *,
                 print(f"  Не удалось сохранить кэш: {e}")
     
     return dictionary
-
-
-# def load_hunspell(dic_path: str | Path, aff_path: str | Path, *, 
-#                   quiet: bool = False, use_cache: bool = True) -> HunspellDictionary:
-#     """
-#     Загрузить Hunspell словарь.
-    
-#     Args:
-#         dic_path: Путь к .dic файлу
-#         aff_path: Путь к .aff файлу
-#         quiet: Не выводить сообщения о прогрессе
-#         use_cache: Использовать кэширование в pickle
-#     """
-#     if not dic_path.exists():
-#         raise FileNotFoundError(f"Not found: {dic_path}")
-#     cache_path = _get_cache_path(dic_path)
-    
-#     if not aff_path.exists():
-#         raise FileNotFoundError(f"Not found: {aff_path}")
-#     return HunspellDictionary(dic_path, aff_path, quiet=quiet)    
-#     # Пробуем загрузить из кэша
-#     if use_cache and cache_path.exists():
-#         cache_mtime = cache_path.stat().st_mtime
-#         dic_mtime = dic_path.stat().st_mtime
-#         aff_mtime = aff_path.stat().st_mtime
-        
-#         if cache_mtime > max(dic_mtime, aff_mtime):
-#             if not quiet:
-#                 print(f"  Загрузка из кэша {cache_path.name}...")
-#             try:
-#                 with open(cache_path, "rb") as f:
-#                     return pickle.load(f)
-#             except Exception:
-#                 pass  # Если кэш повреждён, пересоздаём
-    
-#     # Парсим словарь
-#     dictionary = HunspellDictionary(dic_path, aff_path, quiet=quiet)
-    
-#     # Сохраняем в кэш
-#     if use_cache:
-#         try:
-#             with open(cache_path, "wb") as f:
-#                 pickle.dump(dictionary, f)
-#             if not quiet:
-#                 print(f"  Кэш сохранён: {cache_path.name}")
-#         except Exception as e:
-#             if not quiet:
-#                 print(f"  Не удалось сохранить кэш: {e}")
-    
-#     return dictionary
