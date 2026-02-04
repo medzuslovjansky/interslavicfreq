@@ -539,4 +539,4 @@ def correctness(text: str, lang: str = "isv") -> float:
     return correct_count / len(tokens)
 
 # Show import notice
-print("Call interslavicfreq.help() or isv.help() to learn about library features")
+print("Try `interslavicfreq.help()` to learn about library features (or `isv.help()` if `import as isv`)")
