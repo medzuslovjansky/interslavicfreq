@@ -234,18 +234,42 @@ class HunspellDictionary:
         w = word.lower()
         return w in self.words or word in self.words
 
-    # def _filter_isv_words(self):
-    #     """
-    #     Фильтрация для межславянского языка.
-    #     Удаляем слова, заканчивающиеся на 'vš' или 'č' 
-    #     (это некорректные формы).
-    #     """
-    #     self.words = {
-    #         word for word in self.words 
-    #         if not (word.endswith('vš') or word.endswith('č'))
-    #     }
+def _get_cache_dir() -> Path:
+    """
+    Get the cache directory for Hunspell dictionaries.
+    Uses standard user cache locations for each OS.
+    """
+    app_name = "interslavicfreq"
+    
+    if sys.platform == "win32":
+        # Windows: %LOCALAPPDATA% or %APPDATA%
+        base = os.environ.get("LOCALAPPDATA") or os.environ.get("APPDATA")
+        if base:
+            cache_dir = Path(base) / app_name / "cache"
+        else:
+            cache_dir = Path.home() / ".cache" / app_name
+    elif sys.platform == "darwin":
+        # macOS: ~/Library/Caches/
+        cache_dir = Path.home() / "Library" / "Caches" / app_name
+    else:
+        # Linux/Unix: $XDG_CACHE_HOME or ~/.cache/
+        xdg_cache = os.environ.get("XDG_CACHE_HOME")
+        if xdg_cache:
+            cache_dir = Path(xdg_cache) / app_name
+        else:
+            cache_dir = Path.home() / ".cache" / app_name
+    
+    # Создаем папку, если её нет
+    cache_dir.mkdir(parents=True, exist_ok=True)
+    return cache_dir
 
-    #     return w in self.words or word in self.words
+
+def _get_cache_path(dic_path: Path) -> Path:
+    """Получить путь к файлу кэша в пользовательской папке."""
+    cache_dir = _get_cache_dir()
+    # Создаем имя файла на основе исходного словаря, чтобы не было конфликтов
+    cache_name = f"{dic_path.stem}.cache.pickle"
+    return cache_dir / cache_name
 
     def _filter_isv_words(self):
         """

@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-INTERSLAVICFREQ — Interactive README & Demo
+INTERSLAVICFREQ — Help
 Запустите: python readme_and_tests.py
 """
 
@@ -116,7 +116,8 @@ def run(code: str, ctx: dict):
 
 
 # ─── MAIN ───
-def main():
+def show_help():
+    """Show interactive documentation and demo for interslavicfreq library."""
     print(f"""
 {C.BOLD}INTERSLAVICFREQ{C.RST}
 Библиотека анализа слов и текстов для межславянского и других славянских языков.
@@ -187,68 +188,9 @@ isv.quality_index('Dobry denj, kako jesi?', frequency=0, razumlivost=0, correctn
 isv.quality_index('črnogledniki slusajut izvěstoglašenje')
 """, ctx)
 
-    # ─── Interactive ───
-    isv = ctx.get('isv')
-    if not isv:
-        print(f"{C.ERR}Ошибка: библиотека не загружена{C.RST}")
-        input("Enter...")
-        return
-
-    print(f"{C.DIM}─── Интерактив ───{C.RST}")
-    print(f"{C.DIM}Введите слово или Python-выражение (q = выход){C.RST}")
-    print(f"{C.DIM}Примеры: dobro | isv.frequency('dom') | isv.quality_index('text'){C.RST}\n")
-
-    while True:
-        try:
-            user_input = input(f"{C.FN}>>> {C.RST}").strip()
-            if not user_input or user_input == 'q':
-                break
-
-            # Проверяем, похоже ли на Python-выражение
-            is_expression = (
-                '(' in user_input or 
-                '.' in user_input or
-                user_input.startswith('[') or
-                user_input.startswith('{')
-            )
-
-            if is_expression:
-                # Выполняем как Python-выражение
-                try:
-                    result = eval(user_input, ctx)
-                    res_str = format_result(result)
-                    if res_str:
-                        print(f"    {C.CMT}→ {res_str}{C.RST}\n")
-                    else:
-                        print()
-                except SyntaxError:
-                    exec(user_input, ctx)
-                    print()
-                except Exception as e:
-                    print(f"    {C.ERR}Error: {e}{C.RST}\n")
-            else:
-                # Это просто слово — показываем все метрики
-                word = user_input
-                
-                f = isv.frequency(word)
-                r = isv.razumlivost(word)
-                
-                try:
-                    sp = isv.spellcheck(word, 'isv')
-                    sp_s = f"{C.OK}✓{C.RST}" if sp else f"{C.ERR}✗{C.RST}"
-                except Exception:
-                    sp_s = "—"
-
-                print(f"    freq={C.NUM}{f:.2f}{C.RST}  razum={C.NUM}{r:.2f}{C.RST}  spell={sp_s}\n")
-
-        except (KeyboardInterrupt, EOFError):
-            break
-
-    print("Done.")
-    try:
-        input()
-    except EOFError:
-        pass
-
 if __name__ == '__main__':
-    main()
+    show_help()
+
+
+# Alias for backward compatibility
+main = show_help

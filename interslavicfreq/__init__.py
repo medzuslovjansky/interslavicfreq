@@ -11,6 +11,8 @@ from pathlib import Path
 
 import msgpack
 
+from .help import show_help as help
+
 from .numbers import digit_freq, has_digit_sequence, smash_numbers
 from .tokens import simple_tokenize, tokenize
 
@@ -535,3 +537,6 @@ def correctness(text: str, lang: str = "isv") -> float:
     correct_count = sum(1 for token in tokens if dictionary.check(token))
     
     return correct_count / len(tokens)
+
+# Show import notice
+print("Call interslavicfreq.help() or isv.help() to learn about library features")
