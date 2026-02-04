@@ -6,7 +6,7 @@ interslavicfreq is a Python library for word and text analysis of the Interslavi
 
 ✏️ Installation
 
-pip install git+https://github.com/gorlatoff/interslavicfreq.git
+pip install git+https://github.com/medzuslovjansky/interslavicfreq.git
 
 ✏️ Usage Examples
 
