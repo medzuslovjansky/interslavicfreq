@@ -56,7 +56,7 @@ isv.quality_index('črnogledniki slusajut izvěstoglašenje')  # → 0.22
 ```
 
 ✏️ Requirements
-• Python 3.10+ (Optimized for 3.14)
+• Tested on Python 3.14.
 
 ✏️ License
 This project is licensed under the MIT License.
