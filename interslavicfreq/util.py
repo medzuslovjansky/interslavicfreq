@@ -1,15 +1,11 @@
 from __future__ import annotations
-
 from pathlib import Path
-
-import locate
 
 def data_path(filename: str | None = None) -> Path:
     """
     Get a path to a file in the data directory.
     """
+    base = Path(__file__).parent
     if filename is None:
-        base = Path(locate.this_dir())
         return base / "data" / "frequency"
     return base / "data" / "frequency" / filename
-

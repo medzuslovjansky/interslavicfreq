@@ -28,7 +28,6 @@ classifiers = [
 dependencies = [
     "msgpack",
     "regex",
-    "locate",
 ]
 
 [project.urls]
@@ -36,8 +35,7 @@ dependencies = [
 "Source" = "https://github.com/gorlatoff/interslavicfreq"
 
 [tool.setuptools]
-# Это заставляет setuptools искать и включать все .py файлы
-packages = ["interslavicfreq"]
+include-package-data = true
 
 [tool.setuptools.package-data]
 # Это ГАРАНТИРУЕТ включение файлов данных (частотности и словари)
