@@ -1,0 +1,254 @@
+#!/usr/bin/env python3
+"""
+INTERSLAVICFREQ — Interactive README & Demo
+Запустите: python readme_and_tests.py
+"""
+
+import sys
+import os
+import re
+
+# ─── Определяем поддержку цветов ───
+def _supports_color():
+    """Проверяет поддержку ANSI цветов."""
+    if os.environ.get('NO_COLOR'):
+        return False
+    if not hasattr(sys.stdout, 'isatty') or not sys.stdout.isatty():
+        return False
+    if sys.platform == 'win32':
+        try:
+            import ctypes
+            kernel32 = ctypes.windll.kernel32
+            handle = kernel32.GetStdHandle(-11)
+            mode = ctypes.c_ulong()
+            if not kernel32.GetConsoleMode(handle, ctypes.byref(mode)):
+                return False
+            # ENABLE_VIRTUAL_TERMINAL_PROCESSING = 0x0004
+            return bool(kernel32.SetConsoleMode(handle, mode.value | 0x0004))
+        except Exception:
+            return False
+    return True
+
+USE_COLOR = _supports_color()
+
+# ─── Цвета ───
+if USE_COLOR:
+    class C:
+        RST = '\033[0m'
+        DIM = '\033[90m'
+        BOLD = '\033[1m'
+        STR = '\033[33m'
+        NUM = '\033[35m'
+        KW = '\033[31m'
+        FN = '\033[36m'
+        CMT = '\033[90m'
+        ERR = '\033[91m'
+        OK = '\033[32m'
+else:
+    class C:
+        RST = DIM = BOLD = STR = NUM = KW = FN = CMT = ERR = OK = ''
+
+
+def hl(code: str) -> str:
+    """Подсветка синтаксиса (если поддерживается)."""
+    if not USE_COLOR:
+        return code
+    lines = []
+    for line in code.split('\n'):
+        if '#' in line:
+            idx = line.index('#')
+            line = line[:idx] + C.CMT + line[idx:] + C.RST
+        line = re.sub(r"('[^']*')", f'{C.STR}\\1{C.RST}', line)
+        line = re.sub(r'("[^"]*")', f'{C.STR}\\1{C.RST}', line)
+        for kw in ['import', 'from', 'as', 'True', 'False', 'None']:
+            line = re.sub(rf'\b({kw})\b', f'{C.KW}\\1{C.RST}', line)
+        line = re.sub(r'\b(\d+\.?\d*)\b', f'{C.NUM}\\1{C.RST}', line)
+        line = re.sub(r'\b(\w+)\(', f'{C.FN}\\1{C.RST}(', line)
+        lines.append(line)
+    return '\n'.join(lines)
+
+
+def format_result(result) -> str:
+    """Форматирует результат для вывода."""
+    if result is None:
+        return ""
+    if isinstance(result, float):
+        return f"{result:.2f}"
+    if isinstance(result, bool):
+        color = C.OK if result else C.ERR
+        return f"{color}{result}{C.RST}"
+    if isinstance(result, list) and len(result) < 15:
+        return repr(result)
+    if isinstance(result, dict):
+        return f"{{{len(result)} items}}"
+    return repr(result)
+
+
+def run(code: str, ctx: dict):
+    """Показать и выполнить код с результатами на той же строке."""
+    for line in code.strip().split('\n'):
+        stripped = line.strip()
+        
+        # Пустые строки
+        if not stripped:
+            print()
+            continue
+        
+        # Комментарии - просто печатаем
+        if stripped.startswith('#'):
+            print(hl(line))
+            continue
+        
+        # Исполняемый код
+        try:
+            result = eval(stripped, ctx)
+            res_str = format_result(result)
+            if res_str:
+                print(f"{hl(line)}  {C.CMT}# → {res_str}{C.RST}")
+            else:
+                print(hl(line))
+        except SyntaxError:
+            exec(stripped, ctx)
+            print(hl(line))
+        except Exception as e:
+            print(f"{hl(line)}  {C.ERR}# Error: {e}{C.RST}")
+    print()
+
+
+# ─── MAIN ───
+def main():
+    print(f"""
+{C.BOLD}INTERSLAVICFREQ{C.RST}
+Библиотека анализа слов и текстов для межславянского и других славянских языков.
+""")
+
+    ctx = {}
+
+    run("import interslavicfreq as isv", ctx)
+
+    run("""
+# Частота слова (шкала Zipf: 3 = редко, 5+ = часто)
+isv.frequency('člověk')
+isv.frequency('dom')
+isv.frequency('xyz123')
+""", ctx)
+
+    run("""
+# Полная форма: zipf_frequency(word, lang)
+isv.zipf_frequency('dom', 'isv')
+""", ctx)
+
+    run("""
+# Другие языки
+isv.frequency('człowiek', lang='pl')
+isv.frequency('человек', lang='ru')
+isv.frequency('člověk', lang='cs')
+""", ctx)
+
+    run("""
+# Razumlivost — понятность слова для славян (0.0 - 1.0)
+isv.razumlivost('dobro')
+isv.razumlivost('prihoditi')
+""", ctx)
+
+    run("""
+# Фразы: frequency = гармоническое среднее, razumlivost = арифметическое
+isv.frequency('dobry denj')
+isv.razumlivost('dobry denj')
+""", ctx)
+
+    run("""
+# Проверка орфографии
+isv.spellcheck('prijatelj', 'isv')
+isv.spellcheck('priyatel', 'isv')
+""", ctx)
+
+    run("""
+# Процент корректных слов в тексте
+isv.correctness('Dobry denj, kako jesi?', 'isv')
+isv.correctness('Dbory denj, kako jes?', 'isv')
+
+""", ctx)
+
+    run("""
+# Токенизация
+isv.simple_tokenize('Dobry denj!')
+""", ctx)
+
+    run("""
+# Доступные словари
+isv.available_spellcheck_languages()
+""", ctx)
+
+    run("""
+# Индекс качества текста (взвешенное среднее frequency, razumlivost, correctness)
+isv.quality_index('Dobry denj, kako jesi?')
+isv.quality_index('Dobry denj, kako jesi?', frequency=0, razumlivost=0, correctness=1)
+isv.quality_index('črnogledniki slusajut izvěstoglašenje')
+""", ctx)
+
+    # ─── Interactive ───
+    isv = ctx.get('isv')
+    if not isv:
+        print(f"{C.ERR}Ошибка: библиотека не загружена{C.RST}")
+        input("Enter...")
+        return
+
+    print(f"{C.DIM}─── Интерактив ───{C.RST}")
+    print(f"{C.DIM}Введите слово или Python-выражение (q = выход){C.RST}")
+    print(f"{C.DIM}Примеры: dobro | isv.frequency('dom') | isv.quality_index('text'){C.RST}\n")
+
+    while True:
+        try:
+            user_input = input(f"{C.FN}>>> {C.RST}").strip()
+            if not user_input or user_input == 'q':
+                break
+
+            # Проверяем, похоже ли на Python-выражение
+            is_expression = (
+                '(' in user_input or 
+                '.' in user_input or
+                user_input.startswith('[') or
+                user_input.startswith('{')
+            )
+
+            if is_expression:
+                # Выполняем как Python-выражение
+                try:
+                    result = eval(user_input, ctx)
+                    res_str = format_result(result)
+                    if res_str:
+                        print(f"    {C.CMT}→ {res_str}{C.RST}\n")
+                    else:
+                        print()
+                except SyntaxError:
+                    exec(user_input, ctx)
+                    print()
+                except Exception as e:
+                    print(f"    {C.ERR}Error: {e}{C.RST}\n")
+            else:
+                # Это просто слово — показываем все метрики
+                word = user_input
+                
+                f = isv.frequency(word)
+                r = isv.razumlivost(word)
+                
+                try:
+                    sp = isv.spellcheck(word, 'isv')
+                    sp_s = f"{C.OK}✓{C.RST}" if sp else f"{C.ERR}✗{C.RST}"
+                except Exception:
+                    sp_s = "—"
+
+                print(f"    freq={C.NUM}{f:.2f}{C.RST}  razum={C.NUM}{r:.2f}{C.RST}  spell={sp_s}\n")
+
+        except (KeyboardInterrupt, EOFError):
+            break
+
+    print("Done.")
+    try:
+        input()
+    except EOFError:
+        pass
+
+if __name__ == '__main__':
+    main()

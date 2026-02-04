@@ -1,0 +1,74 @@
+SET UTF-8
+WORDCHARS -
+TRY jhěčšžeaiouynsrltkmpdbgvzcf-
+MAP 3
+MAP eě
+MAP gh
+MAP iy
+ICONV 64
+ICONV ę e
+ICONV Ę E
+ICONV ų u
+ICONV Ų U
+ICONV å a
+ICONV Å A
+ICONV ė e
+ICONV Ė E
+ICONV ȯ o
+ICONV Ȯ O
+ICONV ľ l
+ICONV Ľ L
+ICONV ĺ l
+ICONV Ĺ L
+ICONV ń n
+ICONV Ń N
+ICONV ŕ r
+ICONV Ŕ R
+ICONV ś s
+ICONV Ś S
+ICONV ź z
+ICONV Ź Z
+ICONV ť t
+ICONV Ť T
+ICONV ď d
+ICONV Ď D
+ICONV đ dž
+ICONV Đ Dž
+ICONV ć č
+ICONV Ć Č
+ICONV á a
+ICONV Á A
+ICONV é e
+ICONV É E
+ICONV è e
+ICONV È E
+ICONV í i
+ICONV Í I
+ICONV ì i
+ICONV Ì I
+ICONV ò o
+ICONV Ò O
+ICONV ù u
+ICONV Ù U
+ICONV ý y
+ICONV Ý Y
+ICONV ç c
+ICONV Ç C
+ICONV ň n
+ICONV Ň N
+ICONV ř r
+ICONV Ř R
+ICONV ṙ r
+ICONV ṱ t
+ICONV ḓ d
+ICONV ĵ j
+ICONV Ĵ J
+ICONV ŀ l
+ICONV Ŀ L
+ICONV ı i
+ICONV d́ d
+ICONV D́ D
+ICONV t́ t
+ICONV T́ T
+REP 1
+REP što čto

@@ -1,0 +1,28 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "interslavicfreq"
+version = "0.1.0"
+authors = [
+  { name="Mikhail Gorlatov", email="gorlatoff@gmail.com" },
+]
+description = "A library for word and text analysis for Interslavic and other Slavic languages. Forked from wordfreq."
+readme = "README.md"
+requires-python = ">=3.10"
+license = {text = "MIT"}
+keywords = ["interslavic", "slavic", "linguistics", "wordfreq", "nlp", "zipf"]
+classifiers = [
+    "Programming Language :: Python :: 3",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Topic :: Text Processing :: Linguistic",
+]
+dependencies = [
+    # Add your dependencies here
+]
+
+[project.urls]
+"Homepage" = "https://github.com/yourusername/interslavicfreq"
+"Source" = "https://github.com/yourusername/interslavicfreq"
