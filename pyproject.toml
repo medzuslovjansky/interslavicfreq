@@ -1,5 +1,5 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -14,15 +14,35 @@ requires-python = ">=3.10"
 license = {text = "MIT"}
 keywords = ["interslavic", "slavic", "linguistics", "wordfreq", "nlp", "zipf"]
 classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
     "Topic :: Text Processing :: Linguistic",
 ]
 dependencies = [
-    # Add your dependencies here
+    "msgpack",
+    "regex",
+    "locate",
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/yourusername/interslavicfreq"
-"Source" = "https://github.com/yourusername/interslavicfreq"
+"Homepage" = "https://github.com/gorlatoff/interslavicfreq"
+"Source" = "https://github.com/gorlatoff/interslavicfreq"
+
+[tool.setuptools]
+# Это заставляет setuptools искать и включать все .py файлы
+packages = ["interslavicfreq"]
+
+[tool.setuptools.package-data]
+# Это ГАРАНТИРУЕТ включение файлов данных (частотности и словари)
+"interslavicfreq" = ["data/**/*"]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["interslavicfreq*"]
