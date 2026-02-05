@@ -19,6 +19,7 @@ from .tokens import simple_tokenize, tokenize
 from .util import data_path
 
 from .isv_phonetic_distance import phonetic_distance, phonetic_similarity
+from .transliteration_isv import transliteration, transliterate_to_standard_latin
 
 logger = logging.getLogger(__name__)
 
@@ -349,45 +350,6 @@ def _normalize_zipf(zipf: float) -> float:
     return (zipf - ZIPF_MIN) / (ZIPF_MAX - ZIPF_MIN)
 
 
-def quality_index(
-    text: str,
-    frequency: float = 0.33,
-    razumlivost: float = 0.33,
-    correctness: float = 0.33
-) -> float:
-    """
-    Calculate overall quality index for Interslavic text.
-    
-    Uses weighted average of three metrics:
-    - frequency: normalized Zipf frequency (0-1)
-    - razumlivost: intelligibility score (0-1)  
-    - correctness: spelling correctness (0-1)
-    
-    Args:
-        text: The text to analyze
-        frequency: Weight for frequency metric (default: 0.33)
-        razumlivost: Weight for razumlivost metric (default: 0.33)
-        correctness: Weight for correctness metric (default: 0.33)
-    
-    Returns:
-        A value between 0.0 and 1.0 representing overall quality.
-    """
-    # Получаем значения метрик
-    freq_zipf = zipf_frequency(text, 'isv')
-    razum_val = globals()['razumlivost'](text)  # Avoid name collision with parameter
-    corr_val = globals()['correctness'](text, 'isv')
-    
-    # Нормализуем frequency из Zipf в 0-1
-    freq_norm = _normalize_zipf(freq_zipf)
-    
-    # Взвешенное среднее
-    total_weight = frequency + razumlivost + correctness
-    if total_weight == 0:
-        return 0.0
-    
-    return (freq_norm * frequency + razum_val * razumlivost + corr_val * correctness) / total_weight
-
-
 @lru_cache(maxsize=100)
 def top_n_list(lang: str, n: int, wordlist: str = "best", ascii_only: bool = False) -> list[str]:
     """
@@ -530,6 +492,7 @@ def correctness(text: str, lang: str = "isv") -> float:
         A value between 0.0 and 1.0 representing the proportion of
         correctly spelled words.
     """
+
     tokens = simple_tokenize(text)
     
     if not tokens:
@@ -539,6 +502,49 @@ def correctness(text: str, lang: str = "isv") -> float:
     correct_count = sum(1 for token in tokens if dictionary.check(token))
     
     return correct_count / len(tokens)
+
+
+def quality_index(
+    text: str,
+    frequency: float = 0.2,
+    razumlivost: float = 0.5,
+    correctness: float = 0.3
+) -> float:
+    """
+    Calculate overall quality index for Interslavic text.
+    
+    Uses weighted average of three metrics:
+    - frequency: normalized Zipf frequency (0-1)
+    - razumlivost: intelligibility score (0-1)  
+    - correctness: spelling correctness (0-1)
+    
+    Args:
+        text: The text to analyze
+        frequency: Weight for frequency metric (default: 0.33)
+        razumlivost: Weight for razumlivost metric (default: 0.33)
+        correctness: Weight for correctness metric (default: 0.33)
+    
+    Returns:
+        A value between 0.0 and 1.0 representing overall quality.
+    """
+
+    text = transliterate_to_standard_latin(text)
+
+    # Получаем значения метрик
+    freq_zipf = zipf_frequency(text, 'isv')
+    razum_val = globals()['razumlivost'](text)  # Avoid name collision with parameter
+    corr_val = globals()['correctness'](text, 'isv')
+    
+    # Нормализуем frequency из Zipf в 0-1
+    freq_norm = _normalize_zipf(freq_zipf)
+    
+    # Взвешенное среднее
+    total_weight = frequency + razumlivost + correctness
+    if total_weight == 0:
+        return 0.0
+    
+    return (freq_norm * frequency + razum_val * razumlivost + corr_val * correctness) / total_weight
+
 
 # Show import notice
 print("Try `interslavicfreq.help()` to learn about library features (or `isv.help()` if `import as isv`)")

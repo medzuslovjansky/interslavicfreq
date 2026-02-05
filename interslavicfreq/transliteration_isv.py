@@ -1,6 +1,7 @@
 import re
 
 trans_tables = { 
+    'kir_to_lat': 'ньј-ńj ь- а-a ӑ-å б-b в-v ў-v г-g ґ-g д-d дж-dž ђ-dž е-e є-ě ѣ-ě ж-ž з-z и-i ј-j ї-ji й-j к-k л-l љ-lj м-m н-n њ-nj о-o п-p р-r с-s т-t у-u ф-f х-h ц-c ч-č ш-š щ-šč ъ-ȯ ы-y ю-ju я-ja ё-e ѫ-ų ѧ-ę ћ-ć ѥ-je ꙑ-y',
     'isv': 'ć-č ć-č ć-č ś-s ź-z ŕ-r ĺ-l ľ-l ń-n t́-t ť-t d́-d ď-d đ-dž ò-o ȯ-o ė-e è-e č-č š-š ž-ž ě-ě е̌-ě å-a ę-e ų-u ě-e y-i ньј-nj ь- а-a ӑ-a б-b в-v ў-v г-g ґ-g д-d дж-dž ђ-dž е-e є-e ѣ-e ж-ž з-z и-i ј-j ї-ji й-j к-k л-l љ-lj м-m н-n њ-nj о-o п-p р-r с-s т-t у-u ф-f х-h ц-c ч-č ш-š щ-šč ъ-o ы-y ю-ju я-ja ё-e ѫ-u ѧ-e ћ-č ѥ-je ꙑ-i',
     'isv_to_slovianto': 'ě-e y-i',
     'isv_to_standard': 'ć-č ć-č ć-č ś-s ź-z ŕ-r ĺ-l ľ-l ń-n t́-t ť-t d́-d ď-d đ-dž ò-o ȯ-o ė-e è-e č-č š-š ž-ž ě-ě е̌-ě å-a ę-e ų-u',
@@ -10,9 +11,7 @@ trans_tables = {
     'uk': 'ґ-г а́-а е́-е и́-и о́-о у́-у ы́-ы є́-є ю́-ю я́-я і́-і ї́-ї',  
     'be': 'ґ-г а́-а е́-е и́-и о́-о у́-у ы́-ы э́-э ю́-ю я́-я і́-і',  
     'bg': 'ѝ-и',
-    'mk': 'ѝ-и ѐ-е',
-    'kir_to_lat': 'ньј-ńj ь- а-a ӑ-å б-b в-v ў-v г-g ґ-g д-d дж-dž ђ-dž е-e є-ě ѣ-ě ж-ž з-z и-i ј-j ї-ji й-j к-k л-l љ-lj м-m н-n њ-nj о-o п-p р-r с-s т-t у-u ф-f х-h ц-c ч-č ш-š щ-šč ъ-ȯ ы-y ю-ju я-ja ё-e ѫ-ų ѧ-ę ћ-ć ѥ-je ꙑ-y',     
-    'kirilicna_zamena': 'ру-ru бе-be ук-uk бг-bg мк-mk ср-sr ua-uk cz-cs ms-isv мс-isv обнови-obnovi',
+    'mk': 'ѝ-и ѐ-е'
 }
 
 
@@ -33,3 +32,8 @@ def transliteration2(text, lang='kir_to_lat'):
     for i in range(0, len(series), 2):
         series[i] = transliteration(series[i], lang)
     return '`'.join(series)
+
+def transliterate_to_standard_latin(text):
+    text = transliteration(text, 'kir_to_lat')
+    text = transliteration(text, 'isv_to_standard')
+    return text
