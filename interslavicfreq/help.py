@@ -120,7 +120,7 @@ def show_help():
     """Show interactive documentation and demo for interslavicfreq library."""
     print(f"""
 {C.BOLD}INTERSLAVICFREQ{C.RST}
-Библиотека анализа слов и текстов для межславянского и других славянских языков.
+A library for analyzing words and texts in Interslavic and other Slavic languages.
 """)
 
     ctx = {}
@@ -128,65 +128,74 @@ def show_help():
     run("import interslavicfreq as isv", ctx)
 
     run("""
-# Частота слова (шкала Zipf: 3 = редко, 5+ = часто)
+# Word frequency (Zipf scale: 3 = rare, 5+ = common)
 isv.frequency('člověk')
 isv.frequency('dom')
 isv.frequency('xyz123')
 """, ctx)
 
     run("""
-# Полная форма: zipf_frequency(word, lang)
+# Full form: zipf_frequency(word, lang)
 isv.zipf_frequency('dom', 'isv')
 """, ctx)
 
     run("""
-# Другие языки
+# Other languages
 isv.frequency('człowiek', lang='pl')
 isv.frequency('человек', lang='ru')
 isv.frequency('člověk', lang='cs')
 """, ctx)
 
     run("""
-# Razumlivost — понятность слова для славян (0.0 - 1.0)
+# Razumlivost — word intelligibility for Slavic speakers (0.0 - 1.0)
 isv.razumlivost('dobro')
 isv.razumlivost('prihoditi')
 """, ctx)
 
     run("""
-# Фразы: frequency = гармоническое среднее, razumlivost = арифметическое
+# Phrases: frequency = harmonic mean, razumlivost = arithmetic mean
 isv.frequency('dobry denj')
 isv.razumlivost('dobry denj')
 """, ctx)
 
     run("""
-# Проверка орфографии
+# Spell checking
 isv.spellcheck('prijatelj', 'isv')
 isv.spellcheck('priyatel', 'isv')
 """, ctx)
 
     run("""
-# Процент корректных слов в тексте
+# Percentage of correct words in a text
 isv.correctness('Dobry denj, kako jesi?', 'isv')
 isv.correctness('Dbory denj, kako jes?', 'isv')
 
 """, ctx)
 
     run("""
-# Токенизация
+# Tokenization
 isv.simple_tokenize('Dobry denj!')
 """, ctx)
 
     run("""
-# Доступные словари
+# Available dictionaries
 isv.available_spellcheck_languages()
 """, ctx)
 
     run("""
-# Индекс качества текста (взвешенное среднее frequency, razumlivost, correctness)
+# Text quality index (weighted mean of frequency, razumlivost, correctness)
 isv.quality_index('Dobry denj, kako jesi?')
 isv.quality_index('Dobry denj, kako jesi?', frequency=0, razumlivost=0, correctness=1)
 isv.quality_index('črnogledniki slusajut izvěstoglašenje')
 """, ctx)
+
+    run("""
+# Phonetic similarity (~1.0 = identical, 0.0 = very different)
+# Useful for cross-Slavic comparison and spelling variation
+isv.phonetic_similarity('člověk', 'człowiek', lang='cs')
+isv.phonetic_similarity('prijatelj', 'przyjaciel', lang='pl')
+""", ctx)
+
+
 
 if __name__ == '__main__':
     show_help()
