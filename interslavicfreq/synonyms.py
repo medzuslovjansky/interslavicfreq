@@ -21,6 +21,9 @@ from collections import defaultdict
 from pathlib import Path
 from .util import data_path as _data_path
 
+from .transliteration_isv import transliterate_to_standard_latin
+
+
 # ========================== CONFIG ==========================
 
 CSV_URL = (
@@ -41,10 +44,7 @@ _brackets1 = re.compile(r"\(.*?\)")
 _brackets2 = re.compile(r"\[.*?\]")
 
 
-from .transliteration_isv import transliteration, transliterate_to_standard_latin
-
-def normalize_cell(s):
-    s = transliterate_to_standard_latin(s)
+def clear_cell(s):
     """Чистка: убрать # и ! в начале, скобки, привести к lower."""
     s = str(s).strip()
     s = s.lstrip("#!")
@@ -65,7 +65,7 @@ def split_by_coma(text):
 
 def normalize_pos(s):
     """Грубая нормализация части речи для группировки."""
-    s = normalize_cell(s).replace(". ", ".").replace("/", "")
+    s = clear_cell(s).replace(". ", ".").replace("/", "")
     if s.startswith(("m.", "f.", "n.")):
         return "noun"
     return s.rstrip(".")
@@ -109,7 +109,8 @@ def load_words(quiet: bool = True):
     needed = ["id", "isv", "partOfSpeech"] + LANG_COLUMNS
     df = df[[c for c in needed if c in df.columns]].fillna("")
     for c in df.columns:
-        df[c] = df[c].apply(normalize_cell)
+        df[c] = df[c].apply(clear_cell)
+    df["isv"] = df["isv"].apply(lambda x: transliterate_to_standard_latin(x))
     df["pos_norm"] = df["partOfSpeech"].apply(normalize_pos)
     return df
 
@@ -250,14 +251,15 @@ def load_synonyms(use_cache: bool = True, quiet: bool = True) -> dict[str, set[s
 
 def get_synonyms_raw(word: str, syn_map: dict[str, set[str]]) -> set[str]:
     """Low-level lookup: return synonyms from a pre-loaded map."""
-    w = normalize_cell(word)
+    w = clear_cell(word)
     result = set(syn_map.get(w, set()))
     result.add(w)
+
     return result
 
 
 # ========================== MAIN ============================
-
+if __name__ == "__main__":
     df = load_words(quiet=False)
     df = load_words()
     print(f"Загружено строк: {len(df)}")

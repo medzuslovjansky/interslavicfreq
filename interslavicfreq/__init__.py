@@ -218,6 +218,8 @@ def _tokenize_for_freq(word: str, lang: str) -> list[str]:
 
 
 def _word_frequency(word: str, lang: str, wordlist: str, minimum: float) -> float:
+    word = transliterate_to_standard_latin(word)
+
     tokens = _tokenize_for_freq(word, lang)
 
     if not tokens:
@@ -327,6 +329,8 @@ def frequency(word: str, lang: str = "isv", wordlist: str = "best", minimum: flo
     
     Get the frequency of `word` on the Zipf scale.
     """
+    word = transliterate_to_standard_latin(word)
+
     return zipf_frequency(word, lang, wordlist, minimum)
 
 
@@ -477,6 +481,7 @@ def spellcheck(word: str, lang: str) -> bool:
     Returns:
         True if the word is spelled correctly, False otherwise.
     """
+
     dictionary = _get_hunspell_dict(lang)
     return dictionary.check(word)
 
@@ -494,6 +499,7 @@ def correctness(text: str, lang: str = "isv") -> float:
         A value between 0.0 and 1.0 representing the proportion of
         correctly spelled words.
     """
+    text = transliterate_to_standard_latin(text)
 
     tokens = simple_tokenize(text)
     
@@ -529,8 +535,6 @@ def quality_index(
     Returns:
         A value between 0.0 and 1.0 representing overall quality.
     """
-
-    text = transliterate_to_standard_latin(text)
 
     # Получаем значения метрик
     freq_zipf = zipf_frequency(text, 'isv')
@@ -588,10 +592,13 @@ def synonyms(word: str, use_cache: bool = True) -> set[str]:
         >>> isv.synonyms('mysliti')
         {'dumati', 'mněvati', 'mněti', 'mysliti'}
     """
+    word = transliterate_to_standard_latin(word)
+
     syn_map = _get_synonyms_map(use_cache=use_cache)
 
     result = set(syn_map.get(word, set()))
-    result.add(word)
+    # result.add(word)
+    # result = {i for i in result(transliterate_to_standard_latin(s))}
     return result
 
 
@@ -618,6 +625,7 @@ def best_synonym(word: str, best: str = "quality", use_cache: bool = True) -> st
         >>> isv.best_synonym('mysliti', best="quality")
         'mysliti'
     """
+    word = transliterate_to_standard_latin(word)
     syns = synonyms(word, use_cache=use_cache)
     
     if not syns:
