@@ -53,6 +53,20 @@ isv.quality_index('Dobry denj, kako jesi?')  # → 0.81
 isv.quality_index('Dobry denj, kako jesi?', frequency=0, razumlivost=0, correctness=1)  # → 1.00
 isv.quality_index('črnogledniki slusajut izvěstoglašenje')  # → 0.22
 
+# Synonyms — find ISV synonyms for a word
+isv.synonyms('mysliti')  # → {'mysliti', 'mněvati', 'mněti'}
+isv.synonyms('dom')  # → {'dom'}
+
+# Best synonym — pick the best one by a scoring strategy
+# best="frequency"    — highest Zipf frequency
+# best="razumlivost"  — highest intelligibility score
+# best="quality"      — highest quality_index (weighted combination)
+isv.best_synonym('mysliti', best="frequency")  # → 'mysliti'
+isv.best_synonym('mysliti', best="razumlivost")  # → 'mysliti'
+isv.best_synonym('mysliti', best="quality")  # → 'mysliti'
+
+# Reload synonyms without cache
+isv.synonyms('mysliti', use_cache=False)  # → {'mysliti', 'mněvati', 'mněti'}
 ```
 
 ✏️ Requirements

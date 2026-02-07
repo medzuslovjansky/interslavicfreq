@@ -195,6 +195,26 @@ isv.phonetic_similarity('člověk', 'człowiek', lang='cs')
 isv.phonetic_similarity('prijatelj', 'przyjaciel', lang='pl')
 """, ctx)
 
+    run("""
+# Synonyms — find ISV synonyms for a word
+isv.synonyms('mysliti')
+isv.synonyms('dom')
+""", ctx)
+
+    run("""
+# Best synonym — pick the best one by a scoring strategy
+# best="frequency"    — highest Zipf frequency
+# best="razumlivost"  — highest intelligibility score
+# best="quality"      — highest quality_index (weighted combination)
+isv.best_synonym('mysliti', best="frequency")
+isv.best_synonym('mysliti', best="razumlivost")
+isv.best_synonym('mysliti', best="quality")
+""", ctx)
+
+    run("""
+# Reload synonyms without cache
+isv.synonyms('mysliti', use_cache=False)
+""", ctx)
 
 
 if __name__ == '__main__':

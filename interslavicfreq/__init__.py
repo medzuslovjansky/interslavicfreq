@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import logging
 import math
 import random
@@ -17,6 +18,7 @@ from .numbers import digit_freq, has_digit_sequence, smash_numbers
 from .tokens import simple_tokenize, tokenize
 
 from .util import data_path
+from .synonyms import load_synonyms, get_synonyms_raw
 
 from .isv_phonetic_distance import phonetic_distance, phonetic_similarity
 from .transliteration_isv import transliteration, transliterate_to_standard_latin
@@ -548,3 +550,91 @@ def quality_index(
 
 # Show import notice
 print("Try `interslavicfreq.help()` to learn about library features (or `isv.help()` if `import as isv`)")
+# ============================================================================
+# Synonyms integration
+# ============================================================================
+
+_synonyms_cache: dict[str, set[str]] | None = None
+
+
+def _get_synonyms_map(use_cache: bool = True) -> dict[str, set[str]]:
+    """
+    Load the synonyms map, with optional caching.
+    
+    Args:
+        use_cache: If True, use cached version if available.
+    """
+    global _synonyms_cache
+    if use_cache and _synonyms_cache is not None:
+        return _synonyms_cache
+    
+    syn_map = load_synonyms(use_cache=use_cache)
+    _synonyms_cache = syn_map
+    return syn_map
+
+
+def synonyms(word: str, use_cache: bool = True) -> set[str]:
+    """
+    Get synonyms for an Interslavic word.
+    
+    Args:
+        word: The ISV word to find synonyms for.
+        use_cache: If True (default), use cached synonym data.
+    
+    Returns:
+        A set of synonyms including the word itself.
+    
+    Example:
+        >>> isv.synonyms('mysliti')
+        {'dumati', 'mněvati', 'mněti', 'mysliti'}
+    """
+    syn_map = _get_synonyms_map(use_cache=use_cache)
+
+    result = set(syn_map.get(word, set()))
+    result.add(word)
+    return result
+
+
+def best_synonym(word: str, best: str = "quality", use_cache: bool = True) -> str:
+    """
+    Pick the best synonym for a word according to a scoring strategy.
+    
+    Args:
+        word: The ISV word to find the best synonym for.
+        best: Scoring strategy. One of:
+            - "frequency": highest Zipf frequency
+            - "razumlivost": highest intelligibility score
+            - "quality": highest quality_index score
+        use_cache: If True (default), use cached synonym data.
+    
+    Returns:
+        The best synonym as a string.
+    
+    Examples:
+        >>> isv.best_synonym('mysliti', best="frequency")
+        'mysliti'
+        >>> isv.best_synonym('mysliti', best="razumlivost")
+        'mysliti'
+        >>> isv.best_synonym('mysliti', best="quality")
+        'mysliti'
+    """
+    syns = synonyms(word, use_cache=use_cache)
+    
+    if not syns:
+        return word
+    
+    if best == "frequency":
+        scorer = lambda w: zipf_frequency(w, "isv")
+    elif best == "razumlivost":
+        scorer = lambda w: globals()["razumlivost"](w)
+    elif best == "quality":
+        scorer = lambda w: quality_index(w)
+    else:
+        raise ValueError(
+            f"Unknown scoring strategy {best!r}. "
+            f"Use 'frequency', 'razumlivost', or 'quality'."
+        )
+    
+    return max(syns, key=scorer)
+
+
